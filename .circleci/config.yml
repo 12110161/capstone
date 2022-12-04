@@ -31,7 +31,7 @@ jobs:
           command: |
             . venv/bin/activate
             make lint 
-  build-image:
+  build-push-docker:
     docker:
       - image: circleci/node:13.8.0 
     working_directory: ~/repo
@@ -53,19 +53,14 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - run:
-          name: build-docker-image
+          name: Build & Push Docker Image in DockerHub
           command: |
-            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-            aws configure set region $AWS_DEFAULT_REGION
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 162501986873.dkr.ecr.us-east-1.amazonaws.com
-            docker build -t pythonhello-app .
-            docker tag pythonhello-app:latest 162501986873.dkr.ecr.us-east-1.amazonaws.com/pythonhello-app:latest
-      - run:
-          name: push-docker-image
-          command: |
-            docker push 162501986873.dkr.ecr.us-east-1.amazonaws.com/pythonhello-app:latest 
+            echo "Building Docker Image..."
+            docker build --tag $IMAGE_TAG .
+            docker image ls
+            docker login -u="$DOCKERHUB_USER" -p="$DOCKERHUB_PASS"
+            docker tag $IMAGE_TAG $DOCKERHUB_USER/$IMAGE_TAG:$CIRCLE_WORKFLOW_ID
+            docker push $DOCKERHUB_USER/$IMAGE_TAG:$CIRCLE_WORKFLOW_ID
   
   deploy-infrastructure:
     docker:
