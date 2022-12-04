@@ -122,9 +122,9 @@ workflows:
   default:
     jobs:
       - linting-code
-      - build-image:
+      - build-push-docker:
           requires: [linting-code]
       - deploy-infrastructure:
-          requires: [build-image]
+          requires: [build-push-docker]
       - deploy-config:
           requires: [deploy-infrastructure]
