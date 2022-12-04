@@ -31,6 +31,7 @@ jobs:
           command: |
             . venv/bin/activate
             make lint 
+  
   build-push-docker:
     docker:
       - image: circleci/node:13.8.0 
@@ -65,6 +66,16 @@ jobs:
   deploy-infrastructure:
     docker:
       - image: python:3.11-rc-alpine
+    parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+        aws-region:
+          description: |
+            AWS region
+          type: string
+          default: "us-east-1a"
     steps:
       - checkout
       - restore_cache:
@@ -83,7 +94,7 @@ jobs:
       - run:
           name: deploy cluster
           command: |
-            eksctl create cluster --name cluster-demo --region us-east-1 --nodegroup-name cluster-demo --nodes 2 --ssh-access --ssh-public-key udacity --managed            
+            eksctl create cluster --name cluster-demo --region us-east-1a --nodegroup-name cluster-demo --nodes 2 --ssh-access --ssh-public-key udacity --managed            
   deploy-config: 
     docker:
       - image: 'cimg/base:stable'
