@@ -51,18 +51,19 @@ jobs:
          - image: cimg/go:1.17
       working_directory: ~/repo
       steps:
-         - checkout
-         - setup_remote_docker:
+        - checkout
+        - setup_remote_docker:
             version: 20.10.14
             docker_layer_caching: true
-         - run:
-            name: build and tag docker hub
+        - run:
+            name: Build & Push Docker Image in DockerHub
             command: |
-               cd nginx-hello
-               docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-               docker build -t nginx-hello:latest .
-               docker tag nginx-hello:latest ${DOCKERHUB_USERNAME}/nginx-hello:latest
-               docker push ${DOCKERHUB_USERNAME}/nginx-hello:latest
+              cd nginx-hello
+              docker build --tag $IMAGE_TAG .
+              docker image ls
+              docker login -u="$DOCKERHUB_USER" -p="$DOCKERHUB_PASS"
+              docker tag $IMAGE_TAG $DOCKERHUB_USER/$IMAGE_TAG:$CIRCLE_WORKFLOW_ID
+              docker push $DOCKERHUB_USER/$IMAGE_TAG:$CIRCLE_WORKFLOW_ID
 
    deploy-infrastructure:
       docker:
@@ -185,7 +186,7 @@ workflows:
             requires: [docker-build]
             filters:
                branches:
-                  only: [main]
+                  only: [master]
          - deploy-frontend:
             requires: [deploy-infrastructure]
          - smoke-test:
