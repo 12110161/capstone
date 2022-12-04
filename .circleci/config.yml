@@ -76,14 +76,6 @@ jobs:
                - v1-dependencies-{{ checksum "requirements.txt" }}
                - v1-dependencies-
          - run:
-            name: Ensure front-end infrastructure exist
-            command: |
-               aws cloudformation deploy \
-               --template-file .circleci/files/frontend.yml \
-               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-               --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-         - run:
             name: Install dependencies
             command: |
                apk add --update ansible tar curl
@@ -96,8 +88,6 @@ jobs:
             name: deploy cluster
             command: |
                eksctl create cluster --name cluster-demo --region us-east-1 --nodegroup-name cluster-demo --nodes 2 --ssh-access --ssh-public-key udacity --managed
-         - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
    deploy-frontend:
       docker:
