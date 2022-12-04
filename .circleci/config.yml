@@ -67,7 +67,7 @@ jobs:
 
    deploy-infrastructure:
       docker:
-         - image: amazon/aws-cli:latest
+         - image: python:3.11-rc-alpine
       working_directory: ~/repo
       steps:
          - checkout
